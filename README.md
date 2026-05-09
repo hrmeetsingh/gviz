@@ -126,8 +126,31 @@ gviz --url http://localhost:6060
 
 ### Delve attach (planned)
 
+The target binary must be built without compiler optimizations so Delve can
+read its debug info. For the bundled example, use the Makefile target:
+
+```bash
+make build-example-debug   # builds ./bin/example with -gcflags="all=-N -l"
+./bin/example &
+make attach-pid PID=$!
+```
+
+For your own binary, disable optimizations manually:
+
+```bash
+go build -gcflags="all=-N -l" -o myapp ./cmd/myapp
+```
+
+Then attach by PID:
+
 ```bash
 gviz --pid 12345
+```
+
+Or let gviz launch the binary itself:
+
+```bash
+gviz --binary ./myapp
 ```
 
 ### Options

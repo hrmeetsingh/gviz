@@ -4,7 +4,7 @@ PPROF_PORT  ?= 6060
 PPROF_URL   := http://localhost:$(PPROF_PORT)
 INTERVAL    ?= 1s
 
-.PHONY: build test test-verbose test-race lint clean \
+.PHONY: build build-example-debug test test-verbose test-race lint clean \
         run-example attach attach-pid \
         export-svg help
 
@@ -15,6 +15,13 @@ build:
 	@mkdir -p bin
 	go build -o $(BINARY) ./cmd/gviz
 	@echo "Built $(BINARY)"
+
+# Build the example binary with optimizations disabled so Delve can read debug info.
+# Output: ./bin/example  — use with: make attach-pid PID=$(pgrep -f bin/example)
+build-example-debug:
+	@mkdir -p bin
+	go build -gcflags="all=-N -l" -o ./bin/example $(EXAMPLE_PKG)
+	@echo "Built ./bin/example (debug, no optimizations)"
 
 ## ── Test ─────────────────────────────────────────────────────────────────────
 
@@ -83,8 +90,9 @@ help:
 	@echo "gviz Makefile targets"
 	@echo ""
 	@echo "  Build"
-	@echo "    make build              build ./bin/gviz"
-	@echo "    make clean              remove ./bin and snapshot.svg"
+	@echo "    make build                   build ./bin/gviz"
+	@echo "    make build-example-debug     build example with -gcflags='all=-N -l' (required for Delve)"
+	@echo "    make clean                   remove ./bin and snapshot.svg"
 	@echo ""
 	@echo "  Test"
 	@echo "    make test               run all tests"
