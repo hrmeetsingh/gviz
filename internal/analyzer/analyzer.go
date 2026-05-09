@@ -13,6 +13,7 @@ func BuildTree(goroutines []*model.Goroutine) []*model.Goroutine {
 	// Reset children on every call (safe for repeated use).
 	for _, g := range goroutines {
 		g.Children = nil
+		g.Channels = nil
 	}
 
 	byID := make(map[int64]*model.Goroutine, len(goroutines))
@@ -115,6 +116,16 @@ func BuildSnapshot(goroutines []*model.Goroutine, prev *model.Snapshot) *model.S
 	byID := make(map[int64]*model.Goroutine, len(goroutines))
 	for _, g := range goroutines {
 		byID[g.ID] = g
+	}
+
+	pairs := InferChannelPairs(goroutines)
+	for _, p := range pairs {
+		if s, ok := byID[p.SenderID]; ok {
+			s.Channels = append(s.Channels, model.Channel{Direction: "send", PeerID: p.ReceiverID})
+		}
+		if r, ok := byID[p.ReceiverID]; ok {
+			r.Channels = append(r.Channels, model.Channel{Direction: "recv", PeerID: p.SenderID})
+		}
 	}
 
 	snap := &model.Snapshot{

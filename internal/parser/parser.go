@@ -95,10 +95,7 @@ func parseBlock(block string) (*model.Goroutine, error) {
 		i++
 	}
 
-	// Populate Label from top of stack so callers always have a human name.
-	if len(g.Stack) > 0 {
-		g.Label = g.Stack[0].Function
-	}
+	g.Label = model.EntryLabel(g.Stack)
 
 	return g, nil
 }

@@ -16,6 +16,8 @@ func main() {
 	var (
 		pprofURL       = flag.String("url", "", "pprof base URL (e.g. http://localhost:6060)")
 		pid            = flag.Int("pid", 0, "target process PID for Delve attach")
+		binaryPath     = flag.String("binary", "", "binary path for Delve launch-and-attach")
+		dlvAddr        = flag.String("dlv-addr", "", "address of existing Delve headless server (e.g. 127.0.0.1:4321)")
 		interval       = flag.Duration("interval", time.Second, "refresh interval")
 		leakThreshold  = flag.Int("leak-threshold", 0, "alert when goroutine count exceeds N (0 = off)")
 		leakWindow     = flag.Int("leak-window", 5, "alert on N consecutive count increases")
@@ -23,15 +25,17 @@ func main() {
 	)
 	flag.Parse()
 
-	if *pprofURL == "" && *pid == 0 {
-		fmt.Fprintln(os.Stderr, "gviz: provide --url or --pid")
+	if *pprofURL == "" && *pid == 0 && *binaryPath == "" && *dlvAddr == "" {
+		fmt.Fprintln(os.Stderr, "gviz: provide --url, --pid, --binary, or --dlv-addr")
 		flag.Usage()
 		os.Exit(1)
 	}
 
 	fetcher, err := attach.AutoDetect(attach.AutoDetectConfig{
-		PprofURL: *pprofURL,
-		PID:      *pid,
+		PprofURL:   *pprofURL,
+		PID:        *pid,
+		BinaryPath: *binaryPath,
+		DelveAddr:  *dlvAddr,
 	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "gviz: attach failed: %v\n", err)

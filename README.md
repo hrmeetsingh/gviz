@@ -4,11 +4,16 @@
 goroutines as an interactive, auto-refreshing tree — styled like `git log --graph`.
 
 ```
-└── [1] main.main  •  running
-    ├── [18] main.producer  •  chan receive
-    │       send ···> goroutine 19
-    └── [19] main.consumer  •  chan send
-            recv ···> goroutine 18
+└── [1] main.main  •  select
+    ├── [6] main.dispatcher  •  chan send
+    │       send ···> goroutine 7
+    ├── [7] main.worker  •  chan receive
+    │       recv ···> goroutine 6
+    ├── [8] main.producer  •  chan send
+    │       send ···> goroutine 9
+    ├── [9] main.consumer  •  chan receive
+    │       recv ···> goroutine 8
+    └── [10] main.sleeper  •  sleep (10m0s)
 ```
 
 Each node is colored consistently: the branch line and the goroutine label share
@@ -62,10 +67,10 @@ go build -o gviz ./cmd/gviz
 
 ## Quick start with the example
 
-The `examples/simple` program is a ready-made target that spawns a realistic
-mix of goroutines — a 4-worker fan-out pool with nested sub-workers, a
-producer/consumer channel pair, a long-sleeper, and a context-bound routine.
-It exposes pprof on `:6060` automatically.
+The `examples/simple` program is a ready-made target that spawns a small set of
+goroutines covering every state gviz visualizes: channel send/recv pairs
+(dispatcher/worker and producer/consumer), a sleeping goroutine, and a
+select-based context worker. It exposes pprof on `:6060` automatically.
 
 **Terminal 1 — start the target:**
 
@@ -84,15 +89,16 @@ make attach
 You should see a tree like:
 
 ```
-└── [1] main.main  •  running
-    ├── [6] main.worker  •  chan receive
-    │       recv ···> goroutine 20
+└── [1] main.main  •  select
+    ├── [6] main.dispatcher  •  chan send
+    │       send ···> goroutine 7
     ├── [7] main.worker  •  chan receive
-    ├── [18] main.producer  •  chan send
-    │       send ···> goroutine 19
-    ├── [19] main.consumer  •  chan receive
-    ├── [20] main.subWorker  •  sleep
-    └── [21] main.longSleeper  •  sleep (10m0s)
+    │       recv ···> goroutine 6
+    ├── [8] main.producer  •  chan send
+    │       send ···> goroutine 9
+    ├── [9] main.consumer  •  chan receive
+    │       recv ···> goroutine 8
+    └── [10] main.sleeper  •  sleep (10m0s)
 ```
 
 Other useful Makefile targets:
@@ -124,7 +130,7 @@ Then run:
 gviz --url http://localhost:6060
 ```
 
-### Delve attach (planned)
+### Delve attach
 
 The target binary must be built without compiler optimizations so Delve can
 read its debug info. For the bundled example, use the Makefile target:
@@ -153,6 +159,13 @@ Or let gviz launch the binary itself:
 gviz --binary ./myapp
 ```
 
+Or connect to an existing Delve headless server:
+
+```bash
+dlv attach 12345 --headless --listen=:4321 --api-version=2
+gviz --dlv-addr 127.0.0.1:4321
+```
+
 ### Options
 
 | Flag | Default | Description |
@@ -160,6 +173,7 @@ gviz --binary ./myapp
 | `--url` | — | pprof base URL |
 | `--pid` | `0` | target process PID for Delve attach |
 | `--binary` | — | binary path for Delve launch-and-attach |
+| `--dlv-addr` | — | address of existing Delve headless server (e.g. `127.0.0.1:4321`) |
 | `--interval` | `1s` | refresh interval (e.g. `500ms`, `2s`) |
 | `--leak-threshold` | `0` | alert when goroutine count exceeds N (0 = off) |
 | `--leak-window` | `5` | alert on N consecutive count increases |
@@ -197,7 +211,7 @@ gviz/
 │   ├── model/          Core types: Goroutine, GoroutineTree, Snapshot
 │   ├── parser/         pprof dump text → []Goroutine (ID, state, stack, parentID, label)
 │   ├── analyzer/       BuildTree, InferChannelPairs, Diff, BuildSnapshot
-│   ├── attach/         Fetcher interface, PprofFetcher, DelveFetcher, AutoDetect
+│   ├── attach/         Fetcher interface, PprofFetcher, DelveFetcher + RPC adapter, AutoDetect
 │   ├── app/            CollectSnapshot coordinator (fetch → parse → snapshot)
 │   ├── alerts/         LeakDetector — threshold + monotonic growth detection
 │   ├── history/        RingBuffer[T] — capped snapshot history for timeline view
@@ -220,6 +234,11 @@ presentational and makes the pipeline independently testable.
 **Deterministic ordering.** `BuildTree` sorts children by goroutine ID so the
 tree layout is stable across refreshes, preventing visual jitter.
 
+**Entry-function labels.** Goroutine labels are derived from the entry function
+(the deepest non-runtime frame in the stack), not the top-of-stack frame. This
+means a goroutine blocked in `runtime.chanrecv1` is labeled `main.worker`
+rather than a cryptic runtime symbol.
+
 **Fetcher interface.** `attach.Fetcher` is a narrow interface (`Fetch() ([]*model.Goroutine, error)`).
-Adding a Delve adapter, a file-replay adapter for tests, or a remote gRPC
-adapter requires only implementing this one method.
+The pprof and Delve adapters both implement it; adding a file-replay adapter
+for tests or a remote gRPC adapter requires only this one method.

@@ -158,6 +158,49 @@ func TestBuildSnapshot_PopulatesFields(t *testing.T) {
 	}
 }
 
+func TestBuildSnapshot_WiresChannelPairs(t *testing.T) {
+	goroutines := []*model.Goroutine{
+		makeGoroutine(1, -1, model.StateRunning),
+		makeGoroutine(2, 1, model.StateChanSend),
+		makeGoroutine(3, 1, model.StateChanRecv),
+	}
+	snap := analyzer.BuildSnapshot(goroutines, nil)
+
+	sender := snap.ByID[2]
+	if len(sender.Channels) == 0 {
+		t.Fatal("sender goroutine should have at least one Channel entry")
+	}
+	if sender.Channels[0].Direction != "send" {
+		t.Errorf("sender direction: want \"send\", got %q", sender.Channels[0].Direction)
+	}
+	if sender.Channels[0].PeerID != 3 {
+		t.Errorf("sender peer: want 3, got %d", sender.Channels[0].PeerID)
+	}
+
+	receiver := snap.ByID[3]
+	if len(receiver.Channels) == 0 {
+		t.Fatal("receiver goroutine should have at least one Channel entry")
+	}
+	if receiver.Channels[0].Direction != "recv" {
+		t.Errorf("receiver direction: want \"recv\", got %q", receiver.Channels[0].Direction)
+	}
+	if receiver.Channels[0].PeerID != 2 {
+		t.Errorf("receiver peer: want 2, got %d", receiver.Channels[0].PeerID)
+	}
+}
+
+func TestBuildSnapshot_NoChannelsForNonChanState(t *testing.T) {
+	goroutines := []*model.Goroutine{
+		makeGoroutine(1, -1, model.StateRunning),
+		makeGoroutine(2, 1, model.StateSleep),
+	}
+	snap := analyzer.BuildSnapshot(goroutines, nil)
+	sleeper := snap.ByID[2]
+	if len(sleeper.Channels) != 0 {
+		t.Errorf("sleep goroutine should have no channels, got %d", len(sleeper.Channels))
+	}
+}
+
 func TestBuildSnapshot_DiffFromPrev(t *testing.T) {
 	prev := &model.Snapshot{
 		ByID: map[int64]*model.Goroutine{

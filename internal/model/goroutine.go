@@ -38,6 +38,7 @@ type Goroutine struct {
 	Label      string
 	WaitReason string
 	ParentID   int64 // -1 if no known parent
+	ThreadID   int   // OS thread ID (from Delve), 0 if unknown
 	Stack      []Frame
 	Channels   []Channel
 	CtxTimeout *time.Duration // nil if not detectable

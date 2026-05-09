@@ -56,14 +56,14 @@ func (f *PprofFetcher) Fetch() ([]*model.Goroutine, error) {
 
 // AutoDetectConfig holds parameters for auto-detection.
 type AutoDetectConfig struct {
-	// PprofURL is the base URL to probe (e.g. "http://localhost:6060").
-	PprofURL string
-	// PID is the target process PID for Delve attach (0 = not provided).
-	PID int
+	PprofURL   string // pprof base URL (e.g. "http://localhost:6060")
+	PID        int    // target process PID for Delve attach (0 = not provided)
+	BinaryPath string // binary path for Delve launch-and-attach
+	DelveAddr  string // address of existing Delve headless server
 }
 
 // AutoDetect returns the best available Fetcher for the given config.
-// It tries pprof first; if that fails and a PID is provided it tries Delve.
+// Priority: pprof URL → Delve addr → Delve PID → Delve binary.
 // Returns an error if no adapter succeeds.
 func AutoDetect(cfg AutoDetectConfig) (Fetcher, error) {
 	if cfg.PprofURL != "" {
@@ -73,7 +73,19 @@ func AutoDetect(cfg AutoDetectConfig) (Fetcher, error) {
 		}
 	}
 
-	// Delve attach path — requires an actual process; not testable without one.
-	// Return error when nothing is reachable.
+	delveCfg := DelveServerConfig{
+		PID:        cfg.PID,
+		BinaryPath: cfg.BinaryPath,
+		Addr:       cfg.DelveAddr,
+	}
+
+	if cfg.DelveAddr != "" || cfg.PID != 0 || cfg.BinaryPath != "" {
+		client, err := StartDelveServer(delveCfg)
+		if err != nil {
+			return nil, fmt.Errorf("delve attach: %w", err)
+		}
+		return NewDelveFetcherFromClient(client), nil
+	}
+
 	return nil, fmt.Errorf("auto-detect: no reachable attach point (tried pprof=%q, pid=%d)", cfg.PprofURL, cfg.PID)
 }
