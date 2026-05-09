@@ -7,15 +7,19 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/harmeetsingh/gviz/internal/alerts"
 	"github.com/harmeetsingh/gviz/internal/attach"
 	"github.com/harmeetsingh/gviz/internal/tui"
 )
 
 func main() {
 	var (
-		pprofURL = flag.String("url", "", "pprof base URL (e.g. http://localhost:6060)")
-		pid      = flag.Int("pid", 0, "target process PID for Delve attach")
-		interval = flag.Duration("interval", time.Second, "refresh interval")
+		pprofURL       = flag.String("url", "", "pprof base URL (e.g. http://localhost:6060)")
+		pid            = flag.Int("pid", 0, "target process PID for Delve attach")
+		interval       = flag.Duration("interval", time.Second, "refresh interval")
+		leakThreshold  = flag.Int("leak-threshold", 0, "alert when goroutine count exceeds N (0 = off)")
+		leakWindow     = flag.Int("leak-window", 5, "alert on N consecutive count increases")
+		exportPath     = flag.String("export", "", "write SVG snapshot to file on next refresh, then quit")
 	)
 	flag.Parse()
 
@@ -34,7 +38,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	m := tui.New(fetcher, *interval)
+	var detector *alerts.LeakDetector
+	if *leakThreshold > 0 || *leakWindow > 0 {
+		detector = alerts.NewLeakDetector(alerts.Config{
+			Threshold:    *leakThreshold,
+			GrowthWindow: *leakWindow,
+		})
+	}
+
+	m := tui.New(fetcher, *interval, tui.Options{
+		LeakDetector: detector,
+		ExportPath:   *exportPath,
+	})
 	p := tea.NewProgram(m, tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "gviz: %v\n", err)

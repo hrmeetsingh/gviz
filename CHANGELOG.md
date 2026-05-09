@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v13 - Bug fixes - 2026-05-08T18:06
+
+### What changed
+- Fixed `make attach-leak-check` and `make export-svg`: `--leak-threshold`, `--leak-window`, and `--export` flags were referenced in the Makefile but never registered in the CLI
+- Added `tui.Options` struct; `tui.New` now accepts it instead of positional args
+- Wired `LeakDetector` into the TUI model: alert message appears in the status bar on breach
+- Wired `--export`: on the first successful fetch the SVG is written to the given path, then the program quits
+- README: removed all emojis, converted features table to a bullet list
+
+### Files touched
+- `cmd/gviz/main.go`
+- `internal/tui/model.go`
+- `README.md`
+
+### Test status
+- 77 / 77 passing
+
+---
+
 ## v12 - README (milestones) - 2026-05-08T08:48
 
 ### What changed

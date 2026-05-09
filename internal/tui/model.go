@@ -2,12 +2,15 @@ package tui
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/harmeetsingh/gviz/internal/alerts"
 	"github.com/harmeetsingh/gviz/internal/app"
 	"github.com/harmeetsingh/gviz/internal/attach"
+	"github.com/harmeetsingh/gviz/internal/export"
 	"github.com/harmeetsingh/gviz/internal/model"
 )
 
@@ -20,25 +23,36 @@ type fetchedMsg struct {
 	err  error
 }
 
+// Options holds optional configuration for the TUI model.
+type Options struct {
+	LeakDetector *alerts.LeakDetector
+	ExportPath   string
+}
+
 // Model is the Bubble Tea application model.
 type Model struct {
-	fetcher  attach.Fetcher
-	interval time.Duration
-	snap     *model.Snapshot
-	filter   string
-	selected int64 // ID of selected goroutine, -1 = none
-	width    int
-	height   int
-	err      error
-	showHelp bool
+	fetcher      attach.Fetcher
+	interval     time.Duration
+	snap         *model.Snapshot
+	filter       string
+	selected     int64 // ID of selected goroutine, -1 = none
+	width        int
+	height       int
+	err          error
+	showHelp     bool
+	leakDetector *alerts.LeakDetector
+	leakAlert    string
+	exportPath   string
 }
 
 // New creates a new TUI model.
-func New(fetcher attach.Fetcher, interval time.Duration) Model {
+func New(fetcher attach.Fetcher, interval time.Duration, opts Options) Model {
 	return Model{
-		fetcher:  fetcher,
-		interval: interval,
-		selected: -1,
+		fetcher:      fetcher,
+		interval:     interval,
+		selected:     -1,
+		leakDetector: opts.LeakDetector,
+		exportPath:   opts.ExportPath,
 	}
 }
 
@@ -61,6 +75,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		} else {
 			m.snap = msg.snap
 			m.err = nil
+
+			if m.leakDetector != nil {
+				if alert := m.leakDetector.Observe(len(m.snap.ByID)); alert != nil {
+					m.leakAlert = alert.Message
+				}
+			}
+
+			if m.exportPath != "" {
+				svg := export.NewSVGRenderer().Render(m.snap)
+				if werr := os.WriteFile(m.exportPath, []byte(svg), 0o644); werr != nil {
+					m.err = werr
+				}
+				return m, tea.Quit
+			}
 		}
 		return m, tickAfter(m.interval)
 
@@ -129,14 +157,18 @@ func renderStatusBar(m Model) string {
 	if m.filter != "" {
 		filter = fmt.Sprintf("  filter: %s", m.filter)
 	}
-	alerts := ""
+	diff := ""
 	if m.snap != nil && len(m.snap.NewIDs) > 0 {
-		alerts = fmt.Sprintf("  +%d new", len(m.snap.NewIDs))
+		diff = fmt.Sprintf("  +%d new", len(m.snap.NewIDs))
 	}
 	if m.snap != nil && len(m.snap.EndedIDs) > 0 {
-		alerts += fmt.Sprintf("  -%d ended", len(m.snap.EndedIDs))
+		diff += fmt.Sprintf("  -%d ended", len(m.snap.EndedIDs))
 	}
-	bar := fmt.Sprintf(" goroutines: %d%s%s  [?] help  [q] quit", count, filter, alerts)
+	leakInfo := ""
+	if m.leakAlert != "" {
+		leakInfo = fmt.Sprintf("  LEAK: %s", m.leakAlert)
+	}
+	bar := fmt.Sprintf(" goroutines: %d%s%s%s  [?] help  [q] quit", count, filter, diff, leakInfo)
 	return style.Width(m.width).Render(bar)
 }
 
