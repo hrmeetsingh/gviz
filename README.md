@@ -20,22 +20,20 @@ spawned and recently ended goroutines.
 
 ## Features
 
-| Feature | Status |
-|---|---|
-| pprof HTTP attach | ✅ |
-| Delve PID + binary attach (M1) | ✅ |
-| Parent/child tree from `created by` frames | ✅ |
-| Channel inference (send ↔ recv siblings) | ✅ |
-| Snapshot diff (new / ended goroutines) | ✅ |
-| Live filter by name or state | ✅ |
-| Regex filter + state dropdown (M3) | ✅ |
-| Configurable refresh interval | ✅ |
-| Goroutine leak alerts (M2) | ✅ |
-| Timeline ring-buffer (M4) | ✅ |
-| Mutex contention view (M5) | ✅ |
-| Per-goroutine allocs overlay (M6) | ✅ |
-| SVG export (M7) | ✅ |
-| CPU flamegraph call tree (M8) | ✅ |
+- pprof HTTP attach
+- Delve PID + binary attach
+- Parent/child tree from `created by` frames
+- Channel inference (send / recv siblings)
+- Snapshot diff (new / ended goroutines)
+- Live filter by name or state
+- Regex filter + state dropdown
+- Configurable refresh interval
+- Goroutine leak alerts
+- Timeline ring-buffer
+- Mutex contention view
+- Per-goroutine allocs overlay
+- SVG export
+- CPU flamegraph call tree
 
 ---
 
@@ -49,13 +47,13 @@ spawned and recently ended goroutines.
 ## Install
 
 ```bash
-go install github.com/harmeetsingh/gviz/cmd/gviz@latest
+go install github.com/hrmeetsingh/gviz/cmd/gviz@latest
 ```
 
 Or build from source:
 
 ```bash
-git clone https://github.com/harmeetsingh/gviz
+git clone https://github.com/hrmeetsingh/gviz
 cd gviz
 go build -o gviz ./cmd/gviz
 ```
