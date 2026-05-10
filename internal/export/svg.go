@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/harmeetsingh/gviz/internal/model"
+	"github.com/hrmeetsingh/gviz/internal/model"
 )
 
 const (

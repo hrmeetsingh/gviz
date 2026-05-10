@@ -4,7 +4,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/harmeetsingh/gviz/internal/model"
+	"github.com/hrmeetsingh/gviz/internal/model"
 )
 
 // BuildTree wires parent/child relationships and returns root goroutines.

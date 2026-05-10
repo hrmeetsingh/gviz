@@ -3,8 +3,8 @@ package parser_test
 import (
 	"testing"
 
-	"github.com/harmeetsingh/gviz/internal/model"
-	"github.com/harmeetsingh/gviz/internal/parser"
+	"github.com/hrmeetsingh/gviz/internal/model"
+	"github.com/hrmeetsingh/gviz/internal/parser"
 )
 
 const singleGoroutine = `goroutine 1 [running]:

@@ -3,7 +3,7 @@ package profiles_test
 import (
 	"testing"
 
-	"github.com/harmeetsingh/gviz/internal/profiles"
+	"github.com/hrmeetsingh/gviz/internal/profiles"
 )
 
 const allocsProfileText = `heap profile: 3: 4096 [10: 32768] @ heap/1048576

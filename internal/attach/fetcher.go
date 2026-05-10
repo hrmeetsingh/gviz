@@ -1,6 +1,6 @@
 package attach
 
-import "github.com/harmeetsingh/gviz/internal/model"
+import "github.com/hrmeetsingh/gviz/internal/model"
 
 // Fetcher is the common interface for all attach adapters.
 // Implementations: PprofFetcher, (future) DelveFetcher.

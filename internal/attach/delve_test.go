@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/harmeetsingh/gviz/internal/attach"
-	"github.com/harmeetsingh/gviz/internal/model"
+	"github.com/hrmeetsingh/gviz/internal/attach"
+	"github.com/hrmeetsingh/gviz/internal/model"
 )
 
 var errMock = errors.New("mock error")

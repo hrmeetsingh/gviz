@@ -3,8 +3,8 @@ package tui_test
 import (
 	"testing"
 
-	"github.com/harmeetsingh/gviz/internal/model"
-	"github.com/harmeetsingh/gviz/internal/tui"
+	"github.com/hrmeetsingh/gviz/internal/model"
+	"github.com/hrmeetsingh/gviz/internal/tui"
 )
 
 func TestFilterGoroutines_RegexMatchesLabel(t *testing.T) {

@@ -7,11 +7,11 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/harmeetsingh/gviz/internal/alerts"
-	"github.com/harmeetsingh/gviz/internal/app"
-	"github.com/harmeetsingh/gviz/internal/attach"
-	"github.com/harmeetsingh/gviz/internal/export"
-	"github.com/harmeetsingh/gviz/internal/model"
+	"github.com/hrmeetsingh/gviz/internal/alerts"
+	"github.com/hrmeetsingh/gviz/internal/app"
+	"github.com/hrmeetsingh/gviz/internal/attach"
+	"github.com/hrmeetsingh/gviz/internal/export"
+	"github.com/hrmeetsingh/gviz/internal/model"
 )
 
 // tickMsg is sent on each refresh interval.

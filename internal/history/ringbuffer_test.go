@@ -3,7 +3,7 @@ package history_test
 import (
 	"testing"
 
-	"github.com/harmeetsingh/gviz/internal/history"
+	"github.com/hrmeetsingh/gviz/internal/history"
 )
 
 func TestRingBuffer_PushAndGet(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/harmeetsingh/gviz/internal/model"
+	"github.com/hrmeetsingh/gviz/internal/model"
 )
 
 // FilterGoroutinesRegex filters goroutines by compiling query as a regex

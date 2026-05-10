@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/harmeetsingh/gviz/internal/export"
-	"github.com/harmeetsingh/gviz/internal/model"
+	"github.com/hrmeetsingh/gviz/internal/export"
+	"github.com/hrmeetsingh/gviz/internal/model"
 )
 
 func makeSnapshot() *model.Snapshot {

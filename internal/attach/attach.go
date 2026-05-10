@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/harmeetsingh/gviz/internal/model"
-	"github.com/harmeetsingh/gviz/internal/parser"
+	"github.com/hrmeetsingh/gviz/internal/model"
+	"github.com/hrmeetsingh/gviz/internal/parser"
 )
 
 // --- pprof adapter ---

@@ -3,7 +3,7 @@ package alerts_test
 import (
 	"testing"
 
-	"github.com/harmeetsingh/gviz/internal/alerts"
+	"github.com/hrmeetsingh/gviz/internal/alerts"
 )
 
 func TestLeakDetector_NoAlertBelowThreshold(t *testing.T) {

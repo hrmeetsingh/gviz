@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/harmeetsingh/gviz/internal/profiles"
+	"github.com/hrmeetsingh/gviz/internal/profiles"
 )
 
 const mutexProfileText = `--- mutex:

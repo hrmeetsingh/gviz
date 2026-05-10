@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/harmeetsingh/gviz/internal/analyzer"
-	"github.com/harmeetsingh/gviz/internal/model"
+	"github.com/hrmeetsingh/gviz/internal/analyzer"
+	"github.com/hrmeetsingh/gviz/internal/model"
 )
 
 func makeGoroutine(id, parentID int64, state model.GoroutineState) *model.Goroutine {

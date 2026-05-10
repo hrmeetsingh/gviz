@@ -1,4 +1,4 @@
-module github.com/harmeetsingh/gviz
+module github.com/hrmeetsingh/gviz
 
 go 1.25.3
 

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/harmeetsingh/gviz/internal/model"
+	"github.com/hrmeetsingh/gviz/internal/model"
 )
 
 // Parse parses a goroutine dump (as produced by runtime/pprof or

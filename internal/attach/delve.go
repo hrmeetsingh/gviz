@@ -3,7 +3,7 @@ package attach
 import (
 	"fmt"
 
-	"github.com/harmeetsingh/gviz/internal/model"
+	"github.com/hrmeetsingh/gviz/internal/model"
 )
 
 // DelveLoc mirrors the location fields we need from delve's api.Location.

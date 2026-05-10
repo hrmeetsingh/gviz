@@ -3,7 +3,7 @@ package profiles_test
 import (
 	"testing"
 
-	"github.com/harmeetsingh/gviz/internal/profiles"
+	"github.com/hrmeetsingh/gviz/internal/profiles"
 )
 
 // BuildCallTree is tested with a hand-crafted sample set since parsing the

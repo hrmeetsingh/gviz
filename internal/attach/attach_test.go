@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/harmeetsingh/gviz/internal/attach"
+	"github.com/hrmeetsingh/gviz/internal/attach"
 )
 
 const pprofGoroutineDump = `goroutine profile: total 2

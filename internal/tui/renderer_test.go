@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/harmeetsingh/gviz/internal/model"
-	"github.com/harmeetsingh/gviz/internal/tui"
+	"github.com/hrmeetsingh/gviz/internal/model"
+	"github.com/hrmeetsingh/gviz/internal/tui"
 )
 
 func sampleTree() []*model.Goroutine {

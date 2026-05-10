@@ -7,9 +7,9 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/harmeetsingh/gviz/internal/alerts"
-	"github.com/harmeetsingh/gviz/internal/attach"
-	"github.com/harmeetsingh/gviz/internal/tui"
+	"github.com/hrmeetsingh/gviz/internal/alerts"
+	"github.com/hrmeetsingh/gviz/internal/attach"
+	"github.com/hrmeetsingh/gviz/internal/tui"
 )
 
 func main() {
